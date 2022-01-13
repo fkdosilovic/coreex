@@ -11,7 +11,7 @@ Paepcke (available here: http://ilpubs.stanford.edu:8090/832/).
 The only "public" function is summary.
 """
 
-__all__ = ["summary"]
+# __all__ = ["summary"]
 
 threshold = 0.9
 weight_ratio = 0.95
@@ -20,6 +20,7 @@ weight_text = 0.05
 
 def preprocess(element):
     """Drop all the tree where the root is one of the following:
+    * <img>
     * <form>
     * <iframe>
     * <script>
@@ -28,7 +29,7 @@ def preprocess(element):
 
     This operate directly on element (i.e. no return value).
     """
-    forbidden = ["form", "iframe", "script", "style", etree.Comment]
+    forbidden = ["img", "form", "iframe", "script", "style", etree.Comment]
     etree.strip_elements(element, with_tail=False, *forbidden)
 
 
@@ -72,16 +73,13 @@ def create_subsets(elt):
             elt.textCnt += tailTextCnt
             elt.setTextCnt += tailTextCnt
 
-            try:
+            if child.textCnt > 0:
                 childRatio = (child.textCnt - child.linkCnt) / child.textCnt
 
                 if childRatio > threshold:
                     elt.S.add(child)
                     elt.setTextCnt += child.textCnt
                     elt.setLinkCnt += child.linkCnt
-
-            except ZeroDivisionError:
-                pass  # TODO: check the paper
 
 
 def score_node(element, page_text):
@@ -137,21 +135,10 @@ def summary(filename: str, parser=None, base_url=None):
     best = max(alive, key=lambda x: x.score if "score" in x.__dict__ else 0)
 
     for e in best:
-        if e not in best.S:
+        try:
+            if e not in best.S:
+                e.drop_tree()
+        except Exception:
             e.drop_tree()
 
     return best
-
-
-if __name__ == "__main__":
-    import glob
-
-    for filename in glob.glob("tests/*"):
-        if filename.endswith(".in.html"):
-            content = summary(filename)
-
-            with open(filename.rstrip(".in.html") + ".out.html", "wb") as f:
-                content = etree.tostring(
-                    content, pretty_print=True, encoding="utf-8"
-                )
-                f.write(content)

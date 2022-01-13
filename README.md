@@ -1,18 +1,23 @@
-# What?
+# CoreEx: Content Extraction from Online News Articles
 
-The goal of this Python module is to extract the main content of a webpage (like [Readability](http://www.readability.com/) for instance).
+This the (unofficial) implementation of [*CoreEx: Content Extraction from Online News Articles*](http://ilpubs.stanford.edu:8090/832/) by Jyotika Prasad & Andreas Paepcke.
 
-Ideally it would work on news websites & blogs, and it should work for a vast majority of languages.
+**As opposed to the parent repository, this fork aims to implement the
+algorithm as it is described in the paper.**
 
-# Reference
+Code is packaged to enable easier experimentation.
 
-The main algorithm is from the paper [*CoreEx: Content Extraction from Online News Articles*](http://ilpubs.stanford.edu:8090/832/) by Jyotika Prasad & Andreas Paepcke.
+## Installation
 
-You should note that this is an experiment so I may try different heuristics to improve the results (and so do not fully respect the algorithms described in the paper).
+1. Clone this repository
+2. Inside the repository run `pip install .`
 
-# Try it
+## Example
 
-Just drop some articles from your favorite news websites in a directory called tests, (your articles should have the `.in.html` extension) and run the script, you'll get the content of the articles in `*.out.html` files.
+```python
+from lxml import etree
+from coreex import summary # or import coreex
 
-You can also simply call `summary` from a Python REPL with an URL if you wish...
-
+content = summary(str(path)) # or coreex.summary
+content_str = etree.tostring(content, pretty_print=True, encoding=str)
+```
