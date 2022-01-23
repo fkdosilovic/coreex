@@ -29,7 +29,18 @@ def preprocess(element):
 
     This operate directly on element (i.e. no return value).
     """
-    forbidden = ["img", "form", "iframe", "script", "style", etree.Comment]
+    forbidden = [
+        "img",
+        "span",
+        "video",
+        "button",
+        "select",
+        "iframe",
+        "script",
+        "noscript",
+        "style",
+        etree.Comment,
+    ]
     etree.strip_elements(element, with_tail=False, *forbidden)
 
 
