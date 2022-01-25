@@ -14,8 +14,8 @@ The only "public" function is summary.
 # __all__ = ["summary"]
 
 threshold = 0.9
-weight_ratio = 0.95
-weight_text = 0.05
+weight_ratio = 0.99
+weight_text = 0.01
 
 
 def preprocess(element):
@@ -66,31 +66,31 @@ def create_subsets(elt):
     if elt.tag == "a":
         elt.textCnt = 1
         elt.linkCnt = 1
+        return
 
-    else:
-        elt.textCnt = count_words(elt.text or "")
-        elt.linkCnt = 0
-        elt.setTextCnt = elt.textCnt
-        elt.setLinkCnt = 0
+    elt.textCnt = count_words(elt.text or "")
+    elt.linkCnt = 0
+    elt.setTextCnt = elt.textCnt
+    elt.setLinkCnt = 0
 
-        elt.S = set()
+    elt.S = set()
 
-        for child in elt:
-            create_subsets(child)
-            elt.textCnt += child.textCnt
-            elt.linkCnt += child.linkCnt
+    for child in elt:
+        create_subsets(child)
+        elt.textCnt += child.textCnt
+        elt.linkCnt += child.linkCnt
 
-            tailTextCnt = count_words(child.tail or "")
-            elt.textCnt += tailTextCnt
-            elt.setTextCnt += tailTextCnt
+        tailTextCnt = count_words(child.tail or "")
+        elt.textCnt += tailTextCnt
+        elt.setTextCnt += tailTextCnt
 
-            if child.textCnt > 0:
-                childRatio = (child.textCnt - child.linkCnt) / child.textCnt
+        if child.textCnt > 0:
+            childRatio = (child.textCnt - child.linkCnt) / child.textCnt
 
-                if childRatio > threshold:
-                    elt.S.add(child)
-                    elt.setTextCnt += child.textCnt
-                    elt.setLinkCnt += child.linkCnt
+            if childRatio > threshold:
+                elt.S.add(child)
+                elt.setTextCnt += child.textCnt
+                elt.setLinkCnt += child.linkCnt
 
 
 def score_node(element, page_text):
